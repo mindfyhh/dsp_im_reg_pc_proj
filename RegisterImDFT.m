@@ -29,9 +29,19 @@ col_factor = -256/(2*pi);
 
 rowcorr = (r1fft.*conj(r2fft))./abs(r1fft.*conj(r2fft));
 iffrowcorr =ifft(rowcorr);
+[rowans,rowloc] = max(iffrowcorr);
 
 colcorr = (c1fft.*conj(c2fft))./abs(c1fft.*conj(c2fft));
 iffcolcorr =ifft(colcorr);
+[colans,colloc] = max(iffcolcorr);
 
+if colloc > 128
+   colloc = colloc - 256 
+end
 
+if rowloc > 128
+   rowloc = rowloc - 256
+end
 
+y_axis_int_shift = rowloc - 1
+x_axis_int_shift = colloc - 1
