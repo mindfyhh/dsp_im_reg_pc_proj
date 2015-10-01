@@ -45,6 +45,10 @@ col_factor = -256/(2*pi);
 
 rowcorr = (r1fft.*conj(r2fft))./abs(r1fft.*conj(r2fft));
 
+%The following calculates the cross correlation used in the integer
+%resolution phase correlation technique
+iffrowcorr =ifft(rowcorr);
+[rowans,rowloc] = max(iffrowcorr);
 
 
 %Iterates from center of abs of derivative of image to find the first peak to the
@@ -77,6 +81,13 @@ selectrowcorr = rowcorr(rowcorrleft + 1:rowcorrright);
 %Normalized phase correlation of columns between images
 colcorr = (c1fft.*conj(c2fft))./abs(c1fft.*conj(c2fft));
 
+%The following calculates the cross correlation used in the integer
+%resolution phase correlation technique
+iffcolcorr =ifft(colcorr);
+
+colcorr = fftshift(colcorr);
+dercol = diff(angle(colcorr));
+
 
 %Iterates from center of abs of derivative of image to find the first peak to the
 %left which should correspond to the peak of before the linear portion
@@ -102,7 +113,7 @@ end
  
 %Creates window of linear portion of phase
 selectcolcorr = colcorr(colcorrleft + 1:colcorrright);
-
+[colans,colloc] = max(iffcolcorr);
 finrowcorr = angle(rowcorr(1:50));
 figure(3)
 plot(angle(selectrowcorr))
@@ -123,3 +134,16 @@ x_shift = (pcol(1)*256)/(2*pi)
 figure(6);
 plot(angle(selectcolcorr))
 
+%Normalize outputs to get delta / change of data for cross correlation
+%technique
+
+if colloc > 128
+   colloc = colloc - 256 
+end
+
+if rowloc > 128
+   rowloc = rowloc - 256
+end
+
+y_axis_int_shift = rowloc - 1
+x_axis_int_shift = colloc - 1
